@@ -1,0 +1,23 @@
+{lang->title}<br />
+{lang->description}
+<br /><br />
+<form name="rcBytes" method="POST"><table>
+<tr><td>{lang->wiki}: </td><td><select name="project">';
+<!-- ROW name="wikis" -->
+	<option value="{@dbname@}" />{@domain@}</option>
+<!-- END ROW name="wikis" -->
+</select>
+<tr><td>{lang->recentDropdown}: </td><td><select name="recent">';
+	<option value="86400" />24 {lang->hours}</option>
+	<option value="172800" />48 {lang->hours}</option>
+	<option value="259200" />3 {lang->days}</option>
+	<option value="604800" />7 {lang->days}</option>
+	<option value="1296000" />15 {lang->days}</option>
+	<option value="2592000" />30 {lang->days}</option>
+	<option value="5184000" />60 {lang->days}</option>
+	<option value="7776000" />90 {lang->days}</option>
+</select></td></tr>
+<tr><td>{lang->users}: </td><td><textarea name="users" rows="25" cols="35"></textarea>
+</td></tr>
+<tr><td><input type="submit" value="{lang->download}"></td><td></td></tr>
+</table></form>

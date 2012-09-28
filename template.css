@@ -1,0 +1,86 @@
+#logo {
+	top: 0px;
+	width: 200px;
+	height: 200px;
+	background: url(//toolserver.org/~hoo/includes/logo.png);
+}
+#sidebar {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 200px;
+	height: 100%;
+	background: khaki;
+}
+#contentWrapper {
+	position: absolute;
+	left: 250px;
+	top: 100px;
+}
+#body {
+	background-color: white;
+	font-family: sans-serif;
+}
+#langBar {
+	text-align: center;
+	margin-top: 30px;
+}
+
+.error {
+	color: red;
+	font-size: 17px;
+}
+.marker {
+  background-color: black;
+  border: 3px solid orange;
+  color: white;
+  margin-right: 15px;
+}
+.marker:before {
+  content: "__";
+  color: transparent;
+}
+.marker:after {
+  content: "__";
+  color: transparent;
+}
+ul {
+	line-height: 1.5em;
+	margin: 0.3em 0 0 1.5em;
+	padding: 0;
+}
+a:hover {
+	text-decoration: underline;
+}
+a {
+	text-decoration: none;
+}
+.sidebar_big {
+	font-size: 20px;
+	margin: 7px;
+	text-align: left;
+}
+.topLine {
+	margin-bottom: 3px;
+}
+
+/*
+*	Tool specific code:
+*/
+
+/* globalPageHistory.php */
+
+.minor {
+	font-weight: bold;
+	border-bottom: 1px dotted black;
+}
+.historyLine {
+	border: 1px dashed grey;
+	margin-bottom : 0.15em;
+	font-size: 0.8em;
+}
+.historyLine:hover {
+	border: 1px dashed grey;
+	margin-bottom : 0.15em;
+	background: #FFFFB9;
+}

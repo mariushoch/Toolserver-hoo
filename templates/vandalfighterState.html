@@ -1,0 +1,19 @@
+{lang->title}<br />
+{lang->description}
+<br /><br />
+<h2>{lang->users}</h2>
+<br /><br />
+<div style="float: left;">
+<b>{lang->online}</b><br />
+<!-- IF online_users == "true" -->
+	<!-- ROW name="online_users" -->
+		<span style="color: green;">• </span> <a href='//de.wikipedia.org/wiki/Benutzer:{@name@}'>{@name@}</a><br />
+	<!-- END ROW name="online_users" -->
+<!-- END IF online_users == "true" -->
+</div>
+<div style="float: right;">
+<b>{lang->offline}</b><br />
+<!-- ROW name="offline_users" -->
+	<span style="color: red;">• </span> <a href='//de.wikipedia.org/wiki/Benutzer:{@name@}'>{@name@}</a><br />
+<!-- END ROW name="offline_users" -->
+</div>

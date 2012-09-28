@@ -1,0 +1,41 @@
+{lang->title}<br />
+{lang->description}
+<br /><br />
+<!-- IF mode == "input_form" -->
+	<form name="rcBytes"><table>
+	<tr><td>{lang->category}:</td><td><input type="text" name="cat_name" /></td></tr>
+	<tr><td>{lang->depth}:</td><td><input type="text" name="depth" value="0" /></td></tr>
+	<tr><td>{lang->namespace}:</td><td><select name="page_namespace">
+	<!-- ROW name="namespaces" -->
+		<option value="{@id@}">{@name@}</option>
+	<!-- END ROW name="namespaces" -->
+	</select></td></tr>
+	<tr><td colspan="2">{lang->links_from}: <input type="checkbox" name="links_from" /></td></tr>
+	<tr><td>{lang->wiki}: </td><td><select name="project">
+	<!-- ROW name="wikis" -->
+		<option value="{@dbname@}" />{@domain@}</option>
+	<!-- END ROW name="wikis" -->
+	</select>
+	</td></tr>
+	<tr><td><input type="submit"></td><td></td></tr>
+	</table></form>
+<!-- END IF mode == "input_form" -->
+<!-- IF mode == "do_it" -->
+	<!-- IF error_occurred == "true" -->
+		<span class="error">{error}</span>
+		<br />
+		<br />
+	<!-- END IF error_occurred == "true" -->
+	<!-- IF result == "true" -->
+	<small>{lang->additional_information}</small>
+	<br />
+	<table>
+	<tr><td><b>{lang->page_title}</b></td><td><b>{lang->links}</b></td></tr>
+	<!-- ROW name="result" -->
+		<tr><td><!-- IF is_redirect == "true" --><i><!-- END IF is_redirect == "true" --><a href="//{@wiki@}index.php?title={@page@}">{@page@}</a></td><td>{@links@}<!-- IF is_redirect == "true" --></i><!-- END IF is_redirect == "true" --></td></tr>
+	<!-- END ROW name="result" -->
+	</table>
+	<!-- END IF result == "true" -->
+	<br /><br />
+	<a href="javascript:history.back()">&lt;&lt;&lt; {lang->back}</a> (<a href="{raw_url}">{lang->raw}</a>)
+<!-- END IF mode == "do_it" -->

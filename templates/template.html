@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.1//EN' 'http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+	<head>
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		<link rel='stylesheet' type='text/css' href='//toolserver.org/~hoo/includes/template.css' />
+		<meta name="robots" content="{robots}" />
+		<title>{title}</title>
+		{additional_meta}
+	</head>
+	<body id="body">
+		<!-- Start left sidebar -->
+		<div id="sidebar">
+			<!-- Logo -->
+			<div id="logo"></div>
+			<ul>
+				<li class="sidebar_big">Tools:</li>
+				<li><a href="{document_root}/globalPageHistory.php">Global page History</a></li>
+				<li><a href="{document_root}/rcBytes.php">Added/ removed bytes</a></li>
+				<li><a href="{document_root}/catPageLinks.php">Category page links</a></li>
+				<li><a href="{document_root}/sulAccountCreation.php">Local account creation</a></li>
+				<li><a href="{document_root}/multiUserInfo.php">Multi user info</a></li>
+			</ul>
+			<ul style="position: absolute; bottom: 0px;">
+				<li class="sidebar_big">About me:</li>
+				<li><a href="//meta.wikimedia.org/wiki/User:Hoo_man">About me</a></li>
+				<li><a href="//meta.wikimedia.org/wiki/User_talk:Hoo_man">Contact</a></li>
+				<li><a href="{document_root}/src/">Source</a></li>
+			</ul>
+		</div>
+		<div id="langBar">
+			{lang}
+		</div>
+		<div id="contentWrapper">
+			{content}
+		</div>
+	</body>
+</html>

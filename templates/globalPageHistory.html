@@ -1,0 +1,94 @@
+{lang->title}<br />
+{lang->description}
+<br /><br />
+<!-- IF mode == "input_form" -->
+	<script type="text/javascript">
+		function check() {
+			var tmp = document.getElementsByTagName('input');
+			for(var i = 0; i<tmp.length; i++) {
+				if(tmp[i].type == "checkbox" && tmp[i].name == 'project[]') {
+					tmp[i].setAttribute('checked', 'checked');
+				}
+			}
+		}
+		function uncheck() {
+			var tmp = document.getElementsByTagName('input');
+			for(var i = 0; i<tmp.length; i++) {
+				if(tmp[i].type == "checkbox" && tmp[i].name == 'project[]') {
+					tmp[i].removeAttribute('checked', true);
+				}
+			}
+		}
+	</script>
+	<form name="globalPageHistory"><table>
+	<tr><td>{lang->namespace}:</td><td><select name="page_namespace">
+	<!-- ROW name="namespaces" --><option value='{@0@}'>{@1@}</option><!-- END ROW name="namespaces" -->
+	</select></td></tr>
+	<tr><td>{lang->page_name}:</td><td><input type="text" name="page_title" /></td></tr>
+	<tr><td>{lang->resolve_redirects}</td><td><input type="radio" name="resolve_redirects" /></td></tr>
+	</table>
+	<br />
+	<h3>{lang->advanced_options}</h3><br />
+	<table>
+	<tr><td>{revision_limit_text}: </td><td><input type="text" name="rev_count" value="{config->rev}"></td></tr>
+	<tr><td>{lang->search_families}: </td><td>
+	<!-- ROW name="select_projects" --><input type='checkbox' name='project[]' value='{@0@}' checked />{@0@} ({@1@})<br /><!-- END ROW name="select_projects" -->
+	<br /><span style="color: blue;" onClick="check(this);" />{lang->check_all}</span><br />
+	<span style="color: blue;" onClick="uncheck(this);" type="checkbox">{lang->uncheck_all}</span><br />
+	</td></tr>
+	<tr><td><input type="submit"></td><td></td></tr>
+	</table></form>
+<!-- END IF mode == "input_form" -->
+<!-- IF mode == "do_it" -->
+	<!-- IF error_occurred == "true" -->
+		<span class="error"><b>Error:</b> {error}</span>
+		<br />
+		<br />
+	<!-- END IF error_occurred == "true" -->
+		<!-- IF result == "true" -->
+			<ul id="pagehistory">
+			<!-- ROW name="wiki_row" -->
+				<div class="topLine">
+			<!-- IF redirect_resolved == "true" -->
+				<span class="marker">{lang->redirect_dest}</span>
+			<!-- END IF redirect_resolved == "true" -->
+			<!-- IF page_is_redirect == "true" -->
+				<span class="marker">{lang->redirect}</span>
+			<!-- END IF page_is_redirect == "true" -->
+				<a href="{@0@}index.php?title={@1@}">{@2@}</a>
+				- <a href="{@0@}index.php?title={@1@}&action=history">{lang->view_history}</a>
+				</div>
+					<!-- ROW name="{@3@}" -->
+						<li class="historyLine">
+						<!-- IF NR == "0" -->
+							({lang->cur}
+						<!-- END IF NR == "0" -->
+						<!-- IF NR != "0" -->
+							(<a href="{@base_url@}index.php?diff=current&oldid={@rev_id@}">{lang->cur}</a>
+						<!-- END IF NR != "0" -->
+						| <a href="{@base_url@}index.php?diff=prev&oldid={@rev_id@}">{lang->prev}</a>)
+						<a href="{@base_url@}index.php?oldid={@rev_id@}">{@formatted_time@}</a> - 
+						<!-- IF is_ip == "true" -->
+							<a href="{@base_url@}index.php?title=Special:Contributions/{@user@}">{@user@}</a>
+						<!-- END IF is_ip == "true" -->
+						<!-- IF is_ip != "true" -->
+							<a href="{@base_url@}index.php?title=User:{@user@}">{@user@}</a>
+							 (<a href="{@base_url@}index.php?title=User_talk:{@user@}">{lang->talk}</a> | 
+							<a href="{@base_url@}index.php?title=Special:Contributions/{@user@}">{lang->contribs}</a>)
+						<!-- END IF is_ip != "true" -->
+						<!-- IF minor_edit == "true" -->
+							<span class="minor">m</span> 
+						<!-- END IF minor_edit == "true" -->
+						 ({@size@} {lang->bytes})
+						<!-- IF rev_comment == "true" -->
+							 ({@comment@})
+						<!-- END IF rev_comment == "true" -->
+						 (<a href="{@base_url@}index.php?title={@page_title@}&action=edit&undo={@rev_id@}">{lang->undo}</a>)
+						</li>
+				<!-- END ROW name="{@3@}" -->
+				<br />
+			<!-- END ROW name="wiki_row" -->
+		</ul>
+		<a href="javascript:history.back()">&lt;&lt;&lt; {lang->back}</a>
+	<!-- END IF result == "true" -->
+<!-- END IF mode == "do_it" -->

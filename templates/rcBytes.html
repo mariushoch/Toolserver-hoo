@@ -1,0 +1,25 @@
+{lang->title}<br />
+{lang->description}
+<br /><br />
+<!-- IF mode == "input_form" -->
+	<form name="rcBytes"><table>
+	<tr><td>{lang->user_name}:</td><td><input type="text" name="user_name" /></td></tr>
+	<tr><td>{lang->wiki}: </td><td><select name="project">';
+	<!-- ROW name="wikis" -->
+		<option value="{@dbname@}" />{@domain@}</option>
+	<!-- END ROW name="wikis" -->
+	</select>
+	<tr><td>{lang->namespace}: </td><td><select name="namespace">
+	<!-- ROW name="namespaces" -->
+		<option value="{@id@}" />{@name@}</option>
+	<!-- END ROW name="namespaces" -->
+	</select>
+	</td></tr>
+	<tr><td><input type="submit"></td><td></td></tr>
+	</table></form>
+<!-- END IF mode == "input_form" -->
+<!-- IF mode == "do_it" -->
+	{lang->result}
+	<br /><br />
+	<a href="javascript:history.back()">&lt;&lt;&lt; {lang->back}</a>
+<!-- END IF mode == "do_it" -->
