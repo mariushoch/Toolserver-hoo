@@ -49,7 +49,7 @@ m_equal('machine_readable:: XML test 8', $xml, '<a b="&amp;p"/>');
 // Invalid data for machine_readable::format_xml (should throw exceptions)
 
 try{
-	echo(machine_readable::format_xml(array(array())));
+	machine_readable::format_xml(array(array()));
 	went_wrong('machine_readable:: XML test 9');
 }catch(Exception $e){
 	went_right('machine_readable:: XML test 9');
