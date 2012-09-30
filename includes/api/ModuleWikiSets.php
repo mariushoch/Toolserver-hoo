@@ -1,6 +1,6 @@
 <?php
 /*
-* [[m:User:Hoo man]]; Last update: 2012-07-27
+* [[m:User:Hoo man]]; Last update: 2012-09-30
 * Gives the number of active sysops
 */
 
@@ -19,27 +19,39 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-class ModuleWikiSets extends hoo_api {
-	public function __construct($action) {
-		$params = array();
+class apiWikiSets extends hoo_api {
+	public static function main() {
+		$wikiSets = new apiWikiSets();
+		return $wikiSets;
+	}
+	public function get_expiry() {
+		return 129600;
+	}
+	public function get_description() {
+		return 'Shows information about one or more wiki sets';
+	}
+	public function get_name() {
+		return 'wikiSets';
+	}
+	public function get_params() {
+		return array(
 		// required
-		$params['wikiset'] = array(
+		'wikiset' => array(
 			'name' => 'wikiset',
 			'info' => 'The ids of the wikisets to look up (seperate by |)',
 			'optional' => false,
 			'type' => 'list'
-		);
+		),
 		//optional
-		$params['prop'] = array(
+		'prop' => array(
 			'name' => 'prop',
 			'info' => 'The information to return (ws_wikis, ws_type, ws_name; default: ws_wikis; separate with |)',
 			'optional' => true,
 			'default' => array('ws_wikis'),
 			'type' => 'list'
-		);
-		$this->init_api('wikiSets', 'Shows information about one or more wiki sets', $params, $action, 129600);
+		));
 	}
-	public function run($input) {
+	protected function run($input) {
 		//wikiset id
 		$notFirst = false;
 		$wikiset_list = '';
@@ -58,7 +70,7 @@ class ModuleWikiSets extends hoo_api {
 		foreach($input['prop'] as $i) {
 			$i = trim($i);
 			if($i !== 'ws_wikis' && $i !== 'ws_type' && $i !== 'ws_name') {
-				$this->show_machine_redable_error('Unknown &prop');
+				throw new Exception('Unknown &prop');
 			}
 			if($notFirst) {
 				$return_list .= ',' . $i;
@@ -69,7 +81,7 @@ class ModuleWikiSets extends hoo_api {
 		}
 		$db = &$this->wiki_db('metawiki_p');
 		if(!$db) {
-			$this->show_machine_redable_error('Database error');
+			throw new database_exception('Couldn\'t connect to database: ' . $input['wiki_db']);
 		}
 		//get data
 		$SQL_query = 'SELECT ws_id, ' . $return_list . ' FROM centralauth_p.wikiset WHERE ws_id IN(' . $wikiset_list . ')';
@@ -77,11 +89,10 @@ class ModuleWikiSets extends hoo_api {
 		$statement->execute();
 		$data = $statement->fetchAll(PDO::FETCH_ASSOC);
 		if($statement->errorCode() != 00000 || !is_array($data)) {
-			$this->show_machine_redable_error('Database error');
+			throw new database_exception('Database error: ' . $input['wiki_db']);
 		}
 		if(is_array($data) && isset($data[0])) {
 			foreach($data as $row) {
-				#$tmp = array('pageid' => $row['page_id'], 'ns' => $row['page_namespace'], 'title' => str_replace('_', ' ', $row['full_title']), 'creation_time' => $row['creation_time']);
 				$tmp['ws_id'] = $row['ws_id'];
 				if(in_array('ws_wikis', $input['prop'])) {
 					$tmp['ws_wikis'] = explode(',', $row['ws_wikis']);
@@ -97,9 +108,6 @@ class ModuleWikiSets extends hoo_api {
 		}else{
 			$output[0] = array();
 		}
-		return $this->format_output( $output, $this->replag( 'metawiki_p' ) );
+		return $this->return_data( $output, $this->replag( 'metawiki_p' ) );
 	}
 }
-
-$wikiSets = new ModuleWikiSets( $action );
-?>

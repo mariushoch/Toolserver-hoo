@@ -1,18 +1,21 @@
 <?php
 /*
-* [[m:User:Hoo man]]; Last update: 2012-07-23
+* [[m:User:Hoo man]]; Last update: 2012-09-29
 * This script provides a class with severall functions
 */
 if(!defined('IN_HOO_TS')) {
 	exit();
 }
 
-class hoo_html {
+class hoo_base {
 	private $db_pass;
 	private $db_user;
 	private $db_connections;
 	private $replag_map;
 	public $db_map;
+	//
+	// This function will return a PDO object from which the given $db_name can be accessed
+	//
 	public function &wiki_db($db_name, $user_db = null) {
 		$failure = false;
 		if($db_name === 'toolserver' || $db_name === 'u_hoo_p') {
@@ -21,9 +24,7 @@ class hoo_html {
 			}
 			return $this->db_connections['toolserver'];
 		}
-		if(!is_array($this->db_map)) {
-			$this->db_map = $this->get_db_map();
-		}
+		$this->load_db_map();
 		if(!isset($this->db_map[ $db_name ])) {
 			//unknown DB
 			return $failure;
@@ -48,12 +49,13 @@ class hoo_html {
 			if($this->database_connect($rr_db_server . '.toolserver.org', $rr_db_server) === true) {
 				return $this->db_connections[ $rr_db_server ];
 			}else{
-				echo 1;
 				return $failure;
 			}
 		}
 	}
-	//this function will start a new MySQL PDO connection and stores it into $this->db_connections
+	//
+	// this function will start a new MySQL PDO connection and store it into $this->db_connections
+	//
 	protected function database_connect($server, $canonical_name, $die_on_error = false, $db = false) {
 		if(!isset($this->db_connections[$canonical_name])) {
 			if(!$this->db_pass) {
@@ -79,27 +81,45 @@ class hoo_html {
 		}
 		return true;
 	}
-	public function get_db_map() {	
+	//
+	// This function will load $this->db_map and return it
+	//
+	public function load_db_map() {	
 		global $_SQL;
-		$this->database_connect($_SQL['misc_db']['server'], 'toolserver', true);
-		$statement = $this->db_connections['toolserver']->prepare('SELECT dbname, server FROM toolserver.wiki');
-		$statement->execute();
-		$tmp = $statement->fetchAll(PDO::FETCH_ASSOC);
-		foreach($tmp as $row) {
-			$result[ $row['dbname'] ] = $row['server'];
+		if(is_array($this->db_map)) {
+			return $this->db_map;
 		}
-		return $result;
+		try {
+			$this->database_connect($_SQL['misc_db']['server'], 'toolserver', true);
+			$statement = $this->db_connections['toolserver']->prepare('SELECT dbname, server FROM toolserver.wiki');
+			$statement->execute();
+			$tmp = $statement->fetchAll(PDO::FETCH_ASSOC);
+			if(!is_array($tmp)) {
+				throw new Exception('Invalid result');
+			}
+			foreach($tmp as $row) {
+				$this->db_map[ $row['dbname'] ] = $row['server'];
+			}
+		}catch(Exception $e){
+			throw new database_exception('Database error: toolserver');
+		}
+		return $this->db_map;
 	}
-	public function replag($db_name) {
-		if(!is_array($this->db_map)) {
-			$this->db_map = $this->get_db_map();
-		}
+	//
+	// This function give the current replag at the given $db_name
+	// (Cached)
+	//
+	public function replag($db_name, $user_db = false) {
+		$this->load_db_map();
 		if(!isset($this->db_map[ $db_name ])) {
-			//unknown DB
-			return false;
+			throw new Exception('Unknown Database');
+		}
+		$server_prefix = '';
+		if($user_db) {
+			$server_prefix = 'u';
 		}
 		$server = $this->db_map[ $db_name ];
-		if(is_array($this->replag_map) && isset($this->replag_map[ $server ])) {
+		if(is_array($this->replag_map) && isset($this->replag_map[ $server_prefix . $server ])) {
 			return $this->replag_map[ $server ];
 		}
 		//select (probably) busiest DB
@@ -122,7 +142,7 @@ class hoo_html {
 				$search_db = 'commonswiki_p';
 			break;
 		}
-		$db = &$this->wiki_db($search_db);
+		$db = &$this->wiki_db($search_db, $user_db);
 		//log after the latest timestamp in both recentchanges and logging
 		$SQL_query = 'SELECT /* LIMIT:3 */ UNIX_TIMESTAMP() - UNIX_TIMESTAMP(IF((MAX(rc_timestamp) > MAX(log_timestamp)), MAX(rc_timestamp), MAX(log_timestamp))) as replag FROM ' . $search_db . '.recentchanges, ' . $search_db . '.logging';	
 		//simple, more perfomant query
@@ -131,19 +151,25 @@ class hoo_html {
 		$statement->execute();
 		$replag = $statement->fetchColumn(0);
 		if(!is_numeric($replag) && $replag !== '0') {
-			var_dump($replag);
-			return false;
+			throw new database_exception('Database error: ' . $search_db);
 		}
-		$this->replag_map[ $server ] = $replag;
+		$this->replag_map[ $server_prefix . $server ] = $replag;
 		return $replag;
 	}
-	public function show_error($error, $msg_pre = '', $msg_suff = '') {
+	//
+	//	Print a (more or less) user readable error
+	//
+	public static function show_error($error, $msg_pre = '', $msg_suff = '') {
 		if(!headers_sent()) {
 			header('HTTP/1.0 500 Internal Server Error');			
 		}
 		echo '<h2>Internal Error:</h2><br />';
-		die($msg_pre . $error . $msg_suff);
+		echo $msg_pre . htmlspecialchars($error, ENT_COMPAT | ENT_HTML401, 'UTF-8') . $msg_suff;
+		exit(1);
 	}
+	//
+	// Check whether the given input is an IP
+	//
 	public function is_ip($str) {
 		@$success = inet_pton($str);
 		if($success) {
@@ -153,23 +179,8 @@ class hoo_html {
 		}
 	}
 	//
-	//This function handels the $available_languages and saves the choosen one into $uselang
-	// deprecated over using Intuition
+	// Count the current view in the database, for stats
 	//
-	public function interface_lang() {
-		global $uselang, $available_languages, $_CONFIG;
-		$uselang = 'en';
-		if(isset($_GET['uselang'])) {
-			setcookie('hoo_lang', $_GET['uselang'], time()+60*60*24*30, $_CONFIG['cookie_path']);
-			if($available_languages[$_GET['uselang']]) {
-				$uselang = $_GET['uselang'];
-			}
-		}elseif($_COOKIE['hoo_lang']){
-			if($available_languages[$_COOKIE['hoo_lang']]) {
-				$uselang = $_COOKIE['hoo_lang'];
-			}
-		}
-	}
 	public function view_count($page, $lang) {
 		global $_SQL;
 		$year = date('o');
@@ -188,6 +199,9 @@ class hoo_html {
 			return false;
 		}
 	}
+	//
+	//	Retrieve and sanitize user input
+	//
 	public function get_user_input($name, $sanitize = 'raw', $method = null) {
 		if($method === 'get') {
 			if(isset($_GET[ $name ])) {
@@ -218,9 +232,10 @@ class hoo_html {
 				return (int) $output;
 			break;
 			case 'output':
-				return htmlspecialchars($output, ENT_COMPAT | ENT_HTML401, 'UTF-8');
+				return htmlspecialchars($output, ENT_QUOTES, 'UTF-8');
 			break;
 		}
 	}
 }
-?>
+
+$hoo = new hoo_base();

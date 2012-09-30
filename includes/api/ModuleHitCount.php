@@ -1,6 +1,6 @@
 <?php
 /*
-* [[m:User:Hoo man]]; Last update: 2012-08-05
+* [[m:User:Hoo man]]; Last update: 2012-09-30
 * Counts visits to projects per language
 */
 
@@ -19,8 +19,22 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-class ModuleHitCount extends hoo_api {
-	public function __construct($action) {
+class apiHitCount extends hoo_api {
+	public static function main() {
+		$hitCount = new apiHitCount();
+		return $hitCount;
+	}
+	public function get_description() {
+		return 'Counts visits to projects per language (for internal use by hoo only)';
+	}
+	public function get_name() {
+		return 'hitCount';
+	}
+	public function count_hits() {
+		// We count the hits at our own
+		return false;
+	}
+	public function get_params() {
 		$params = array();
 		// required
 		$params['project'] = array(
@@ -35,21 +49,19 @@ class ModuleHitCount extends hoo_api {
 			'optional' => false,
 			'type' => 'str'
 		);
-		$this->init_api('hitCount', 'Counts visits to projects per language (for internal use by hoo only)', $params, $action);
+		return $params;
 	}
-	public function run($input) {
+	protected function run($input) {
+		global $_SQL;
 		$allowed_projects = array('wikilint');
 		$allowed_langs = array('de', 'en');
 		if(!in_array($input['project'], $allowed_projects) || !in_array($input['lang'], $allowed_langs)) {
-			$this->show_machine_redable_error('Unknown project or language');
+			throw new Exception('Unknown project or language');
 		}
 		if($this->view_count('hitCount-' . $input['project'], $input['lang'])) {
-			return $this->format_output( array());
+			return $this->return_data( array());
 		}else{
-			$this->show_machine_redable_error('Database error');
+			throw new database_exception('Database error: ' . $_SQL['misc_db']['db_name']);
 		}
 	}
 }
-
-$hitCount = new ModuleHitCount( $action );
-?>

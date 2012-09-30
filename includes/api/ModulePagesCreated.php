@@ -1,6 +1,6 @@
 <?php
 /*
-* [[m:User:Hoo man]]; Last update: 2012-07-27
+* [[m:User:Hoo man]]; Last update: 2012-09-30
 * Gives a list of created pages
 */
 
@@ -20,8 +20,21 @@
 */
 
 
-class ModulePagesCreated extends hoo_api {
-	public function __construct($action) {
+class apiPagesCreated extends hoo_api {
+	public static function main() {
+		$pagesCreated = new apiPagesCreated();
+		return $pagesCreated;
+	}
+	public function get_expiry() {
+		return 0;
+	}
+	public function get_description() {
+		return 'Gives a list of pages created by a user';
+	}
+	public function get_name() {
+		return 'pagesCreated';
+	}
+	public function get_params() {
 		$params = array();
 		// required
 		$params['wiki_db'] = array(
@@ -65,9 +78,9 @@ class ModulePagesCreated extends hoo_api {
 			'default' => false,
 			'type' => 'bool'
 		);
-		$this->init_api('pagesCreated', 'Gives a list of pages created by a user', $params, $action, 0);
+		return $params;
 	}
-	public function run($input) {
+	protected function run($input) {
 		$user_name = str_replace('_', ' ', strip_tags($input['user']));
 		//from
 		$from = false;
@@ -98,7 +111,7 @@ class ModulePagesCreated extends hoo_api {
 		}
 		$db = &$this->wiki_db($input['wiki_db']);
 		if(!$db) {
-			$this->show_machine_redable_error('Database error');
+			throw new database_exception('Couldn\'t connect to database: ' . $input['wiki_db']);
 		}
 		$SQL_query = 'SELECT /* LIMIT:60 NM*/ sub.* FROM (';
 		$SQL_query .= 'SELECT IF((page_namespace = 0), page_title, CONCAT(namespacename.ns_name , ":", page_title)) AS full_title, page_id, page_namespace, page_is_redirect, rev_timestamp AS creation_time FROM ' . $input['wiki_db'] . '.revision INNER JOIN ' . $input['wiki_db'] . '.page ON page_id = rev_page INNER JOIN toolserver.namespacename ON namespacename.ns_id = page_namespace';
@@ -128,8 +141,9 @@ class ModulePagesCreated extends hoo_api {
 		$statement->execute();
 		$pages_created = $statement->fetchALL(PDO::FETCH_ASSOC);
 		if($statement->errorCode() != 00000) {
-			$this->show_machine_redable_error('Database error');
+			throw new database_exception('Database error: ' . $input['wiki_db']);
 		}
+		$output = array();
 		if(is_array($pages_created) && isset($pages_created[0])) {
 			foreach($pages_created as $row) {
 				$tmp = array('pageid' => $row['page_id'], 'ns' => $row['page_namespace'], 'title' => str_replace('_', ' ', $row['full_title']), 'creation_time' => $row['creation_time']);
@@ -141,9 +155,6 @@ class ModulePagesCreated extends hoo_api {
 		}else{
 			$output[0] = array();
 		}
-		return $this->format_output( $output, $this->replag( $input['wiki_db'] ) );
+		return $this->return_data( $output, $this->replag( $input['wiki_db'] ) );
 	}
 }
-
-$pagesCreated = new ModulePagesCreated( $action );
-?>
