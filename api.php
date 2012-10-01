@@ -47,7 +47,11 @@ $data = $api_handle->exec(array_merge($_GET, $_POST));
 // Output, if the module doesn't do that at it's own
 if(!$api_handle->has_own_output()) {
 	// set headers
-	machine_readable::set_headers();
+	$expires = $api_handle->get_expiry();
+	if($hoo->get_user_input('action', 'int') !== null) {
+		$expires = $hoo->get_user_input('action', 'int');
+	}
+	machine_readable::set_headers(MACHINE_READABLE_FORMAT, $expires);
 	// send the data to the client
 	$prepend = '';
 	$append = '';
