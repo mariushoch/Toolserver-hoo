@@ -48,8 +48,8 @@ $data = $api_handle->exec(array_merge($_GET, $_POST));
 if(!$api_handle->has_own_output()) {
 	// set headers
 	$expires = $api_handle->get_expiry();
-	if($hoo->get_user_input('action', 'int') !== null) {
-		$expires = $hoo->get_user_input('action', 'int');
+	if($hoo->get_user_input('expires', 'int') !== null) {
+		$expires = $hoo->get_user_input('expires', 'int');
 	}
 	machine_readable::set_headers(MACHINE_READABLE_FORMAT, $expires);
 	// send the data to the client
