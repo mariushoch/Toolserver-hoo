@@ -1,6 +1,6 @@
 <?php
 /*
-* [[m:User:Hoo man]]; Last update: 2012-09-29
+* [[m:User:Hoo man]]; Last update: 2012-10-01
 * This script provides a class with severall functions
 */
 if(!defined('IN_HOO_TS')) {
@@ -120,7 +120,7 @@ class hoo_base {
 		}
 		$server = $this->db_map[ $db_name ];
 		if(is_array($this->replag_map) && isset($this->replag_map[ $server_prefix . $server ])) {
-			return $this->replag_map[ $server ];
+			return $this->replag_map[ $server_prefix . $server ];
 		}
 		//select (probably) busiest DB
 		switch( $server) {
