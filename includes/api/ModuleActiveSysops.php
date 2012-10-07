@@ -62,7 +62,7 @@ class apiActiveSysops extends hoo_api {
 		}
 		//get number of active sysops
 		//$input['wiki_db'] is trusty, as the above would have exited, if it wasn't a known DB
-		$SQL_query = 'SELECT COUNT(*) /* LIMIT: 15 NM */ AS active_sysops FROM (SELECT log_user AS user FROM ' . $input['wiki_db'] . '.logging WHERE log_type IN ("block","delete","protect") AND log_timestamp > :last_action_time GROUP BY log_user) as active_users INNER JOIN ' . $input['wiki_db'] . '.user_groups ON ug_user = active_users.user WHERE ug_group = "sysop"';
+		$SQL_query = 'SELECT COUNT(*) /* LIMIT:15 NM */ AS active_sysops FROM (SELECT log_user AS user FROM ' . $input['wiki_db'] . '.logging WHERE log_type IN ("block","delete","protect") AND log_timestamp > :last_action_time GROUP BY log_user) as active_users INNER JOIN ' . $input['wiki_db'] . '.user_groups ON ug_user = active_users.user WHERE ug_group = "sysop"';
 		$statement = $db->prepare($SQL_query);
 		$statement->bindValue(':last_action_time', $last_action_time, PDO::PARAM_STR);
 		$statement->execute();
