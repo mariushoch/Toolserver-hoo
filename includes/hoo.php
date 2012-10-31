@@ -97,6 +97,7 @@ class hoo_base {
 			if(!is_array($tmp)) {
 				throw new Exception('Invalid result');
 			}
+			$this->db_map = array( 'wikidatawiki_p' => 3 ); //Hack till wikidatawiki is in toolserver.wiki
 			foreach($tmp as $row) {
 				$this->db_map[ $row['dbname'] ] = $row['server'];
 			}
