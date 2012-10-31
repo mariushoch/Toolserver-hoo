@@ -120,12 +120,7 @@ m_equal('hoo_base:: wiki_input("enwiki_p")', $hoo->wiki_input("enwiki_p"), 'enwi
 m_equal('hoo_base:: wiki_input("enwiki")', $hoo->wiki_input("enwiki"), 'enwiki_p');
 
 // not_existing_wiki
-try{
-	$hoo->wiki_input("not_existing_wiki");
-	went_wrong('hoo_base:: wiki_input("not_existing_wiki")');
-}catch(Exception $e){
-	went_right('hoo_base:: wiki_input("not_existing_wiki")');
-}
+m_equal_strict('hoo_base:: wiki_input("not_existing_wiki")', $hoo->wiki_input("not_existing_wiki"), false);
 
 //
 //	clean up
