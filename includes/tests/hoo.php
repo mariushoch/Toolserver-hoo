@@ -37,9 +37,8 @@ m_equal('hoo_base:: is_ip("SA01:E35:8A7C:E14F:FGGA:E5FF:FE54:WF1E")', $hoo->is_i
 
 // $hoo->view_count();
 
-m_equal('hoo_base:: view_count("unit_test", "unit_test")', $hoo->view_count("unit_test", "unit_test"), true);
 //(this needs post clean up), see section clean up
-
+m_equal('hoo_base:: view_count("unit_test", "unit_test")', $hoo->view_count("unit_test", "unit_test"), true);
 //test whether $hoo->view_count() really worked
 $db = &$hoo->wiki_db("u_hoo_p");
 m_n_equal('hoo_base:: wiki_db("u_hoo_p")', $db, false);

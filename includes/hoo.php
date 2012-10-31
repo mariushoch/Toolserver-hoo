@@ -251,12 +251,12 @@ class hoo_base {
 	public function wiki_input($input) {
 		$this->load_db_map();
 		// 1. case:
-		if(isset($this->db_map[ $db_name ])) {
-			return $db_name;
+		if(isset($this->db_map[ $input ])) {
+			return $input;
 		}
 		// 2. case:
-		if(isset($this->db_map[ $db_name . '_p' ])) {
-			return $db_name . '_p';
+		if(isset($this->db_map[ $input . '_p' ])) {
+			return $input . '_p';
 		}
 		return false;
 	}
