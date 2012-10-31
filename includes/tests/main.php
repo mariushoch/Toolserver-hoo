@@ -58,7 +58,7 @@ function m_n_equal_strict($test, $a, $b) {
 define('IN_HOO_TS', true);
 try {
 	//load web_start.php just like a usual site request would
-	require_once('../web_start.php');
+	require_once(__DIR__ . '/../web_start.php');
 
 	//
 	// Core classes

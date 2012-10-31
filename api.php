@@ -14,6 +14,8 @@ error_reporting(-1);
 
 require_once('includes/web_start.php');
 
+$hoo = new hoo_base();
+
 // Output format
 $format = $hoo->get_user_input('format');
 if($format !== null && !in_array($format, machine_readable::$supported_formats)) {

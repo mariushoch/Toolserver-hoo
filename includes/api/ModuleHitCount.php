@@ -59,7 +59,7 @@ class apiHitCount extends hoo_api {
 			throw new Exception('Unknown project or language');
 		}
 		if($this->view_count('hitCount-' . $input['project'], $input['lang'])) {
-			return $this->return_data( array());
+			return $this->return_data(array());
 		}else{
 			throw new database_exception('Database error: ' . $_SQL['misc_db']['db_name']);
 		}

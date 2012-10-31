@@ -7,6 +7,8 @@ if(!defined('IN_HOO_TS')) {
 	exit();
 }
 
+$hoo = new hoo_base();
+
 // $hoo->get_user_input();
 // Set some $_GET and $_POST values
 
@@ -38,6 +40,15 @@ m_equal('hoo_base:: is_ip("SA01:E35:8A7C:E14F:FGGA:E5FF:FE54:WF1E")', $hoo->is_i
 m_equal('hoo_base:: view_count("unit_test", "unit_test")', $hoo->view_count("unit_test", "unit_test"), true);
 //(this needs post clean up), see section clean up
 
+//test whether $hoo->view_count() really worked
+$db = &$hoo->wiki_db("u_hoo_p");
+m_n_equal('hoo_base:: wiki_db("u_hoo_p")', $db, false);
+$SQL_query = "SELECT views FROM u_hoo_p.views WHERE page = 'unit_test' AND lang = 'unit_test' LIMIT 1";	
+$statement = $db->prepare($SQL_query);
+$statement->execute();
+$tmp = $statement->fetch(PDO::FETCH_ASSOC);
+m_equal('hoo_base:: SQL check for view_count("unit_test", "unit_test")', $tmp['views'], '1');
+
 // $hoo->wiki_db();
 
 //query enwiki_p for my user name
@@ -48,14 +59,13 @@ $statement = $db->prepare($SQL_query);
 $statement->execute();
 $tmp = $statement->fetch(PDO::FETCH_ASSOC);
 m_equal("hoo_base:: Test query on enwiki_p", $tmp['user_name'], 'Hoo man');
-//test whether $hoo->view_count() really worked
-$db = &$hoo->wiki_db("u_hoo_p");
-m_n_equal('hoo_base:: wiki_db("u_hoo_p")', $db, false);
-$SQL_query = "SELECT views FROM u_hoo_p.views WHERE page = 'unit_test' AND lang = 'unit_test' LIMIT 1";	
-$statement = $db->prepare($SQL_query);
-$statement->execute();
-$tmp = $statement->fetch(PDO::FETCH_ASSOC);
-m_equal('hoo_base:: SQL check for view_count("unit_test", "unit_test")', $tmp['views'], '1');
+//invalid wiki
+try{
+	$hoo->wiki_db("not_existing_wiki");
+	went_wrong('hoo_base:: wiki_db("not_existing_wiki");');
+}catch(Exception $e){
+	went_right('hoo_base:: wiki_db("not_existing_wiki");');
+}
 
 //	$hoo->replag();
 
@@ -100,6 +110,22 @@ try{
 	went_right('hoo_base:: replag("xmfwiki_p")');
 }catch(Exception $e){
 	went_wrong('hoo_base:: replag("xmfwiki_p")');
+}
+
+//	$hoo->wiki_input();
+
+// enwiki_p
+m_equal('hoo_base:: wiki_input("enwiki_p")', $hoo->wiki_input("enwiki_p"), 'enwiki_p');
+
+// enwiki
+m_equal('hoo_base:: wiki_input("enwiki")', $hoo->wiki_input("enwiki"), 'enwiki_p');
+
+// not_existing_wiki
+try{
+	$hoo->wiki_input("not_existing_wiki");
+	went_wrong('hoo_base:: wiki_input("not_existing_wiki")');
+}catch(Exception $e){
+	went_right('hoo_base:: wiki_input("not_existing_wiki")');
 }
 
 //

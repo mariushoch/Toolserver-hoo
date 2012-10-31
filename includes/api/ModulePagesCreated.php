@@ -110,9 +110,6 @@ class apiPagesCreated extends hoo_api {
 			}
 		}
 		$db = &$this->wiki_db($input['wiki_db']);
-		if(!$db) {
-			throw new database_exception('Couldn\'t connect to database: ' . $input['wiki_db']);
-		}
 		$SQL_query = 'SELECT /* LIMIT:60 NM*/ sub.* FROM (';
 		$SQL_query .= 'SELECT IF((page_namespace = 0), page_title, CONCAT(namespacename.ns_name , ":", page_title)) AS full_title, page_id, page_namespace, page_is_redirect, rev_timestamp AS creation_time FROM ' . $input['wiki_db'] . '.revision INNER JOIN ' . $input['wiki_db'] . '.page ON page_id = rev_page INNER JOIN toolserver.namespacename ON namespacename.ns_id = page_namespace';
 		$SQL_query .= ' WHERE rev_user_text = :user_name AND rev_parent_id = 0 AND namespacename.dbname = "' . $input['wiki_db'] . '" AND namespacename.ns_is_favorite = 1';

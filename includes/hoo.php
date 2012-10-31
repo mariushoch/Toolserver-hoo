@@ -17,7 +17,6 @@ class hoo_base {
 	// This function will return a PDO object from which the given $db_name can be accessed
 	//
 	public function &wiki_db($db_name, $user_db = null) {
-		$failure = false;
 		if($db_name === 'toolserver' || $db_name === 'u_hoo_p') {
 			if(!is_array($this->db_connections) || !$this->db_connections['toolserver']) {
 				$this->database_connect($_SQL['misc_db']['server'], 'toolserver', true);
@@ -27,7 +26,7 @@ class hoo_base {
 		$this->load_db_map();
 		if(!isset($this->db_map[ $db_name ])) {
 			//unknown DB
-			return $failure;
+			throw new database_exception('Unknown database: ' . $db_name);
 		}
 		$user_db_server = 'sql-s' . $this->db_map[ $db_name ] . '-user';
 		$rr_db_server = 'sql-s' . $this->db_map[ $db_name ] . '-rr';
@@ -43,20 +42,20 @@ class hoo_base {
 			if($this->database_connect($user_db_server . '.toolserver.org', $user_db_server) === true) {
 				return $this->db_connections[ $user_db_server ];
 			}else{
-				return $failure;
+				throw new database_exception('Couldn\'t connect to user-database: ' . $db_name);
 			}
 		}else{
 			if($this->database_connect($rr_db_server . '.toolserver.org', $rr_db_server) === true) {
 				return $this->db_connections[ $rr_db_server ];
 			}else{
-				return $failure;
+				throw new database_exception('Couldn\'t connect to database: ' . $db_name);
 			}
 		}
 	}
 	//
 	// this function will start a new MySQL PDO connection and store it into $this->db_connections
 	//
-	protected function database_connect($server, $canonical_name, $die_on_error = false, $db = false) {
+	protected function database_connect($server, $canonical_name, $throw_on_error = false, $db = false) {
 		if(!isset($this->db_connections[$canonical_name])) {
 			if(!$this->db_pass) {
 				$ts_pw = posix_getpwuid(posix_getuid());
@@ -72,10 +71,10 @@ class hoo_base {
 			try {
 				$this->db_connections[$canonical_name] = new PDO($tmp, $this->db_user, $this->db_pass);
 			}catch(PDOException $e){
-				if($die_on_error) {
-					$this->show_error($e->getMessage(), 'Connection failed: ');
+				if($throw_on_error) {
+					throw new database_exception('Connection failed: ' . $server);
 				}else{
-					return 'Connection failed: ' . $e->getMessage();
+					return false;
 				}
 			}
 		}
@@ -186,14 +185,20 @@ class hoo_base {
 		global $_SQL;
 		$year = date('o');
 		$week = date('W');
-		$this->database_connect($_SQL['misc_db']['server'], 'toolserver', true);
-		$SQL_query = 'INSERT INTO ' . $_SQL['misc_db']['db_name'] . '.views (page, lang, year, week, views) VALUES (:page, :lang, :year, :week, 1) ON DUPLICATE KEY UPDATE views = views + 1';
-		$statement = $this->db_connections['toolserver']->prepare($SQL_query);
-		$statement->bindValue(':page', $page, PDO::PARAM_STR);
-		$statement->bindValue(':lang', $lang, PDO::PARAM_STR);
-		$statement->bindValue(':year', $year, PDO::PARAM_INT);
-		$statement->bindValue(':week', $week, PDO::PARAM_INT);
-		$statement->execute();
+		try {
+			$this->database_connect($_SQL['misc_db']['server'], 'toolserver', true);
+			$SQL_query = 'INSERT INTO ' . $_SQL['misc_db']['db_name'] . '.views (page, lang, year, week, views) VALUES (:page, :lang, :year, :week, 1) ON DUPLICATE KEY UPDATE views = views + 1';
+			$statement = $this->db_connections['toolserver']->prepare($SQL_query);
+			$statement->bindValue(':page', $page, PDO::PARAM_STR);
+			$statement->bindValue(':lang', $lang, PDO::PARAM_STR);
+			$statement->bindValue(':year', $year, PDO::PARAM_INT);
+			$statement->bindValue(':week', $week, PDO::PARAM_INT);
+			$statement->execute();
+		}catch(Exception $e){
+			// This isn't good, but maybe we still can serve the request
+			log::write_line($e->getMessage(), $e->getFile());
+			return false;
+		}
 		if($statement->rowCount()) {
 			return true;
 		}else{
@@ -237,6 +242,22 @@ class hoo_base {
 			break;
 		}
 	}
+	//
+	// Accept wiki input in different forms (returns the dbname or false):
+	// 1. Database names with trailing _p (like enwiki_p)
+	// 2. Database names without trailing _p (like enwiki)
+	// @TODO: Implement more options
+	//
+	public function wiki_input($input) {
+		$this->load_db_map();
+		// 1. case:
+		if(isset($this->db_map[ $db_name ])) {
+			return $db_name;
+		}
+		// 2. case:
+		if(isset($this->db_map[ $db_name . '_p' ])) {
+			return $db_name . '_p';
+		}
+		return false;
+	}
 }
-
-$hoo = new hoo_base();

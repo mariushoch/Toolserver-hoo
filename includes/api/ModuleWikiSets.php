@@ -80,9 +80,6 @@ class apiWikiSets extends hoo_api {
 			}
 		}
 		$db = &$this->wiki_db('metawiki_p');
-		if(!$db) {
-			throw new database_exception('Couldn\'t connect to database: ' . $input['wiki_db']);
-		}
 		//get data
 		$SQL_query = 'SELECT ws_id, ' . $return_list . ' FROM centralauth_p.wikiset WHERE ws_id IN(' . $wikiset_list . ')';
 		$statement = $db->prepare($SQL_query);

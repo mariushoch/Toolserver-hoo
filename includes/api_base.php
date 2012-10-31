@@ -58,7 +58,10 @@ abstract class hoo_api extends hoo_base {
 			}else if( $info['type'] === 'wiki' ) {
 				// TODO: Handle different inputs like foo.wikipedia.org,
 				// foowiki_p... probably in hoo_base
-				$tmp = $input[ $info['name'] ];
+				$tmp = $this->wiki_input( $input[ $info['name'] ] );
+				if(!$tmp) {
+					throw new exception('Missing unknown/ invalid wiki: ' . $input[ $info['name'] ]);
+				}
 			}else{
 				$tmp = $input[ $info['name'] ];
 			}
