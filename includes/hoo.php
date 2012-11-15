@@ -106,7 +106,7 @@ class hoo_base {
 		return $this->db_map;
 	}
 	//
-	// This function give the current replag at the given $db_name
+	// This function gives the current replag at the given $db_name
 	// (Cached)
 	//
 	public function replag($db_name, $user_db = false) {
@@ -142,10 +142,13 @@ class hoo_base {
 				$search_db = 'commonswiki_p';
 			break;
 		}
-		$db = &$this->wiki_db($search_db, $user_db);
-		//log after the latest timestamp in both recentchanges and logging
+		// Connect to the server where the wiki we actually want information about is
+		// and not the db we actually search in
+		// (if not a query for s3 will always end on s7, as eswiki is there according to toolserver.wiki)
+		$db = &$this->wiki_db($db_name, $user_db);
+		// log after the latest timestamp in both recentchanges and logging
 		$SQL_query = 'SELECT /* LIMIT:3 */ UNIX_TIMESTAMP() - UNIX_TIMESTAMP(IF((MAX(rc_timestamp) > MAX(log_timestamp)), MAX(rc_timestamp), MAX(log_timestamp))) as replag FROM ' . $search_db . '.recentchanges, ' . $search_db . '.logging';	
-		//simple, more perfomant query
+		// simple, more perfomant query
 		//$SQL_query = 'SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(MAX(rc_timestamp)) AS replag FROM ' . $search_db . '.recentchanges';	
 		$statement = $db->prepare($SQL_query);
 		$statement->execute();
