@@ -131,7 +131,6 @@ class hoo_base {
 			case 7:
 				$search_db = 'eswiki_p';
 			break;
-			break;
 			case 5:
 				$search_db = 'dewiki_p';
 			break;

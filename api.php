@@ -17,7 +17,7 @@ require_once('includes/web_start.php');
 $hoo = new hoo_base();
 
 // Output format
-$format = $hoo->get_user_input('format');
+$format = $hoo->get_user_input('format') ? $hoo->get_user_input('format') : 'xml';
 if($format !== null && !in_array($format, machine_readable::$supported_formats)) {
 	define('MACHINE_READABLE_FORMAT', 'xml');
 	throw new exception('Unknown format');
