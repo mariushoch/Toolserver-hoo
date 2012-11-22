@@ -146,12 +146,20 @@ class hoo_base {
 		// (if not a query for s3 will always end on s7, as eswiki is there according to toolserver.wiki)
 		$db = &$this->wiki_db($db_name, $user_db);
 		// log after the latest timestamp in both recentchanges and logging
-		$SQL_query = 'SELECT /* LIMIT:3 */ UNIX_TIMESTAMP() - UNIX_TIMESTAMP(IF((MAX(rc_timestamp) > MAX(log_timestamp)), MAX(rc_timestamp), MAX(log_timestamp))) as replag FROM ' . $search_db . '.recentchanges, ' . $search_db . '.logging';	
+		$SQL_query = 'SELECT /* LIMIT:3 NM */ UNIX_TIMESTAMP() - UNIX_TIMESTAMP(IF((MAX(rc_timestamp) > MAX(log_timestamp)), MAX(rc_timestamp), MAX(log_timestamp))) as replag FROM ' . $search_db . '.recentchanges, ' . $search_db . '.logging';	
 		// simple, more perfomant query
 		//$SQL_query = 'SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(MAX(rc_timestamp)) AS replag FROM ' . $search_db . '.recentchanges';	
 		$statement = $db->prepare($SQL_query);
 		$statement->execute();
 		$replag = $statement->fetchColumn(0);
+
+		// ERROR 1317 (70100): Query execution was interrupted - Caused by the query killer, probably
+		if($statement->errorCode() == 1317) {
+			// Don't kill the execution but return -1 as there is a change
+			// that other operations on the server succed or maybe even already have
+			log::write_line('Query killed while determining the current replag: ' . $db_name, __FILE__);
+			return -1;
+		}
 		if(!is_numeric($replag) && $replag !== '0') {
 			throw new database_exception('Database error: ' . $search_db);
 		}
