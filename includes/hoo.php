@@ -151,17 +151,13 @@ class hoo_base {
 		//$SQL_query = 'SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(MAX(rc_timestamp)) AS replag FROM ' . $search_db . '.recentchanges';	
 		$statement = $db->prepare($SQL_query);
 		$statement->execute();
-		$replag = $statement->fetchColumn(0);
+		$replag = (int) $statement->fetchColumn(0);
 
-		// ERROR 1317 (70100): Query execution was interrupted - Caused by the query killer, probably
-		if($statement->errorCode() == 1317) {
+		if(!is_numeric($replag)) {
 			// Don't kill the execution but return -1 as there is a change
 			// that other operations on the server succed or maybe even already have
-			log::write_line('Query killed while determining the current replag: ' . $db_name, __FILE__);
+			log::write_line('Query for determining the current replag failed: ' . $db_name, __FILE__);
 			return -1;
-		}
-		if(!is_numeric($replag) && $replag !== '0') {
-			throw new database_exception('Database error: ' . $search_db);
 		}
 		$this->replag_map[ $server_prefix . $server ] = $replag;
 		return $replag;
