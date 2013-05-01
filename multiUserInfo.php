@@ -66,6 +66,7 @@ if(!$do_it) {
 	$_LANG['wiki'] = 'Wiki';
 	$_LANG['hours'] = 'hours';
 	$_LANG['days'] = 'days';
+	$_LANG['months'] = 'months';
 	$_LANG['recentDropdown'] = 'Show article edits from the last';
 	$_LANG['download'] = 'Download CSV';
 	$_LANG['description'] = 'This tool will give informations about up to 75 users in a csv spreadsheet.';
